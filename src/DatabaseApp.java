@@ -1,7 +1,5 @@
-import java.io.BufferedReader;
+
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.FileSystemException;
 
 
@@ -20,13 +18,13 @@ public class DatabaseApp {
 		}
 	}
 	
-	public void setup() throws FileSystemException {
+	public void setup(String[] args) throws FileSystemException {
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			tmpDir = "C:\\tmp\\sajust_db";
 		} else {
 			tmpDir = "/tmp/sajust_dir";
 		}
-	public void setup(String[] args) {
+		
 		/** Select the appropriate mode based on commandline arguments
 		 */
 		
