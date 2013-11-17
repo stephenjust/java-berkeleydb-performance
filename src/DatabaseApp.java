@@ -96,7 +96,9 @@ public class DatabaseApp {
 				if (dbFile.exists()) dbFile.delete();
 				System.out.println("Deleted database file");
 				break;
-			case 6: break;
+			case 6:
+				System.exit(0);
+				break;
 			}
 			
 		}
