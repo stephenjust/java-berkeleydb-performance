@@ -91,7 +91,11 @@ public class DatabaseApp {
 			case 2: break;
 			case 3: break;
 			case 4: break;
-			case 5: break;
+			case 5:
+				File dbFile = new File(tmpDir + File.separator + "table");
+				if (dbFile.exists()) dbFile.delete();
+				System.out.println("Deleted database file");
+				break;
 			case 6: break;
 			}
 			
