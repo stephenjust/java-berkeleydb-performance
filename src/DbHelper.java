@@ -1,6 +1,4 @@
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Random;
 
 import com.sleepycat.db.Database;
@@ -25,8 +23,6 @@ public class DbHelper {
 
 		Database db;
 		try {
-			File dbFile = new File(dbPath);
-			if (!dbFile.exists()) dbFile.createNewFile();
 			db = new Database(dbPath, null, dbConfig);
 
 			return db;
@@ -34,8 +30,6 @@ public class DbHelper {
 			System.err.println("Database file not found");
 		} catch (DatabaseException e) {
 			System.err.println("Failed to open database");
-		} catch (IOException e) {
-			System.err.println("Failed to create database file");
 		}
 		return null;
 	}
