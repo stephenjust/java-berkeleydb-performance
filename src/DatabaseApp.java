@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystemException;
+
+import com.sleepycat.db.Database;
 import com.sleepycat.db.DatabaseType;
 
 public class DatabaseApp {
@@ -81,7 +83,10 @@ public class DatabaseApp {
 			}
 			
 			switch(inputnumber) {
-			case 1: break;
+			case 1: 
+				Database db = DbHelper.create(tmpDir + File.separator + "table", mode);
+				DbHelper.populateTable(db, 10000);
+				break;
 			case 2: break;
 			case 3: break;
 			case 4: break;
