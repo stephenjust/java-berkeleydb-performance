@@ -92,7 +92,9 @@ public class DatabaseApp {
 			case 3: break;
 			case 4: break;
 			case 5: break;
-			case 6: break;
+			case 6:
+				System.exit(0);
+				break;
 			}
 			
 		}
