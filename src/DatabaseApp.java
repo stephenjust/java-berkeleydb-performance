@@ -4,11 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystemException;
-
+import com.sleepycat.db.DatabaseType;
 
 public class DatabaseApp {
 	private String tmpDir;
-	Integer mode = 0;
+	DatabaseType mode;
+	
 	public static void main(String[] args) {
 		DatabaseApp app = new DatabaseApp();
 		try {
@@ -31,9 +32,9 @@ public class DatabaseApp {
 		/** Select the appropriate mode based on commandline arguments
 		 */
 		try{
-		if (args[0].equals("btree")) this.mode = 1;
-		if (args[0].equals("hash")) this.mode = 2;
-		if (args[0].equals("indexfile")) this.mode = 3;
+		if (args[0].equals("btree")) this.mode = DatabaseType.BTREE;
+		if (args[0].equals("hash")) this.mode = DatabaseType.HASH;
+		if (args[0].equals("indexfile")) this.mode = DatabaseType.UNKNOWN;
 		} catch(ArrayIndexOutOfBoundsException e) {
 			System.out.println("Please enter in a commandline argument.");
 			System.out.println("Acceptable options are: btree, hash, indexfile");
