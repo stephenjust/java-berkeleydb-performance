@@ -31,18 +31,18 @@ public class DatabaseApp {
 		if (args[0].equals("btree")) this.mode = 1;
 		if (args[0].equals("hash")) this.mode = 2;
 		if (args[0].equals("indexfile")) this.mode = 3;
-		
+		} catch(ArrayIndexOutOfBoundsException e) {
+			System.out.println("Please enter in a commandline argument.");
+			System.out.println("Acceptable options are: btree, hash, indexfile");
+		}
 		File tDirFile = new File(tmpDir);
 		if (tDirFile.exists()) tDirFile.delete();
 		
 		if (!(new File(tmpDir)).mkdirs()) {
 			throw new FileSystemException("Failed to create temp folder");
 		}
-		} catch(ArrayIndexOutOfBoundsException e) {
-			System.out.println("Please enter in a commandline argument.");
-			System.out.println("Acceptable options are: btree, hash, indexfile");
-		}
-		System.out.println(System.getProperty("os.name"));
+		
+		
 
 	}
 	
