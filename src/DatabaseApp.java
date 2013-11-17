@@ -27,7 +27,7 @@ public class DatabaseApp {
 		
 		/** Select the appropriate mode based on commandline arguments
 		 */
-		
+		try{
 		if (args[0].equals("btree")) this.mode = 1;
 		if (args[0].equals("hash")) this.mode = 2;
 		if (args[0].equals("indexfile")) this.mode = 3;
@@ -38,6 +38,12 @@ public class DatabaseApp {
 		if (!(new File(tmpDir)).mkdirs()) {
 			throw new FileSystemException("Failed to create temp folder");
 		}
+		} catch(ArrayIndexOutOfBoundsException e) {
+			System.out.println("Please enter in a commandline argument.");
+			System.out.println("Acceptable options are: btree, hash, indexfile");
+		}
+		System.out.println(System.getProperty("os.name"));
+
 	}
 	
 	public void run() {
