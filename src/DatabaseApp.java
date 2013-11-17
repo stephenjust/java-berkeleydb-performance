@@ -38,8 +38,9 @@ public class DatabaseApp {
 		if (args[0].equals("hash")) this.mode = DatabaseType.HASH;
 		if (args[0].equals("indexfile")) this.mode = DatabaseType.UNKNOWN;
 		} catch(ArrayIndexOutOfBoundsException e) {
-			System.out.println("Please enter in a commandline argument.");
-			System.out.println("Acceptable options are: btree, hash, indexfile");
+			System.err.println("Please enter in a commandline argument.");
+			System.err.println("Acceptable options are: btree, hash, indexfile");
+			System.exit(1);
 		}
 		File tDirFile = new File(tmpDir);
 		if (tDirFile.exists()) tDirFile.delete();
