@@ -101,7 +101,11 @@ public class DatabaseApp {
 	
 	public void cleanup() {
 		File tDirFile = new File(tmpDir);
-		if (tDirFile.exists()) tDirFile.delete();
+		File dbFile = new File(tmpDir + File.separator + "table");
+		if (dbFile.exists() || tDirFile.exists()){
+			dbFile.delete();
+			tDirFile.delete();
+		}
 	}
 
 }
