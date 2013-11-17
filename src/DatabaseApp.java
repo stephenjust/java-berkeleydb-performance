@@ -1,23 +1,41 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.FileSystemException;
 
 
 public class DatabaseApp {
 
+	private String tmpDir;
+	
 	public static void main(String[] args) {
 		DatabaseApp app = new DatabaseApp();
 		try {
 			app.setup();
 			app.run();
+		} catch (FileSystemException e) {
+			System.err.println(e.getMessage());
 		} finally {
 			app.cleanup();
 		}
 	}
 	
-	public void setup() {
+	public void setup() throws FileSystemException {
+		if (System.getProperty("os.name").startsWith("Windows")) {
+			tmpDir = "C:\\tmp\\sajust_db";
+		} else {
+			tmpDir = "/tmp/sajust_dir";
+		}
 		
+		File tDirFile = new File(tmpDir);
+		if (tDirFile.exists()) tDirFile.delete();
+		
+		if (!(new File(tmpDir)).mkdirs()) {
+			throw new FileSystemException("Failed to create temp folder");
+		}
 	}
+	
 	public void run() {
 		/** Display the main menu, prompt the user for which db type is being used
 		 * 
@@ -54,8 +72,10 @@ public class DatabaseApp {
 		}
 		
 	}
+	
 	public void cleanup() {
-		
+		File tDirFile = new File(tmpDir);
+		if (tDirFile.exists()) tDirFile.delete();
 	}
 
 }
