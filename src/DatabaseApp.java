@@ -82,15 +82,21 @@ public class DatabaseApp {
 				System.out.println("Invalid Entry, please try again");
 				continue;
 			}
-			
+
+			Database db = DbHelper.create(tmpDir + File.separator + "table", mode);
 			switch(inputnumber) {
 			case 1: 
-				Database db = DbHelper.create(tmpDir + File.separator + "table", mode);
 				DbHelper.populateTable(db, 10000);
 				break;
 			case 2: break;
 			case 3: break;
-			case 4: break;
+			case 4:
+				System.out.print("Start of range?: ");
+				String startKey = inputKey();
+				System.out.print("End of range?: ");
+				String endKey = inputKey();
+				DbHelper.retrieveRange(db, startKey, endKey);
+				break;
 			case 5:
 				File dbFile = new File(tmpDir + File.separator + "table");
 				if (dbFile.exists()) dbFile.delete();
