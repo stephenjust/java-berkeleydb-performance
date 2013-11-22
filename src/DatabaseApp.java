@@ -114,5 +114,34 @@ public class DatabaseApp {
 			tDirFile.delete();
 		}
 	}
+	
+	/**
+	 * Prompt for key
+	 * @return Key string
+	 */
+	private String inputKey() {
+		BufferedReader br = null;
+		br = new BufferedReader(new InputStreamReader(System.in));
+		
+		String key;
+		while(true) {
+			try {
+				key = br.readLine();
+
+				// Return value from input
+				if (key.length() < 64) {
+					System.err.println("Key must be at least 64 characters long");
+					continue;
+				}
+				if (key.length() > 127) {
+					System.err.println("Key must be shorter than 128 characters");
+					continue;
+				}
+				return key;
+			} catch (IOException e) {
+				System.err.println("Error retrieving value");
+			}
+		}
+	}
 
 }
