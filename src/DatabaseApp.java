@@ -86,7 +86,7 @@ public class DatabaseApp {
 
 			switch(inputnumber) {
 			case 1: 
-				DbHelper.populateTable(db, 10000);
+				DbHelper.populateTable(db, 100000);
 				break;
 			case 2: break;
 			case 3: break;
@@ -95,14 +95,10 @@ public class DatabaseApp {
 				String startKey = inputKey();
 				System.out.print("End of range?: ");
 				String endKey = inputKey();
-				if (startKey.compareTo(endKey) > 0) {
-					System.err.println("End key must be greater than start key!");
-				} else {
-					DbHelper.retrieveRange(db, startKey, endKey);
-				}
+				DbHelper.retrieveRange(db, startKey, endKey);
 				break;
 			case 5:
-				File dbFile = new File(tmpDir + File.separator + "table");
+				File dbFile = new File(tmpDir + File.separator + "table.db");
 				if (dbFile.exists()) dbFile.delete();
 				System.out.println("Deleted database file");
 				break;

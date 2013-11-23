@@ -183,8 +183,7 @@ public class DbHelper {
 	}
 
 
-	public static List<String> retrieveRange(Database db, String startKey, String endKey) {
-		List<String> list = new ArrayList<String>();
+	public static void retrieveRange(Database db, String startKey, String endKey) {
 		FileOutputStream fos = null;
 		
 		long sTime = System.nanoTime();
@@ -211,8 +210,13 @@ public class DbHelper {
 			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) !=
 		            OperationStatus.SUCCESS) {
 				System.err.println("Error searching!");
-				return null;
+				return;
 			}
+	    	fos.write(key.getData());
+	    	fos.write((byte)'\n');
+	    	fos.write(data.getData());
+	    	fos.write((byte)'\n');
+	    	fos.write((byte)'\n');
 			recordCount = 1;
 		    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 		    	// Stop at end of range
@@ -248,9 +252,6 @@ public class DbHelper {
 				}
 			}
 		}
-		
-		
-		return list;
 	}
 	
 	/**
