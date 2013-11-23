@@ -26,7 +26,7 @@ public class DatabaseApp {
 	
 	public void setup(String[] args) throws FileSystemException {
 		if (System.getProperty("os.name").startsWith("Windows")) {
-			tmpDir = "C:\\tmp\\sajust_db";
+			tmpDir = "C:\\tmp\\sajust_dir";
 		} else {
 			tmpDir = "/tmp/sajust_dir";
 		}
@@ -54,7 +54,8 @@ public class DatabaseApp {
 	}
 	
 	public void run() {
-		
+		Database db = DbHelper.create(tmpDir + File.separator + "table.db", mode);
+
 		/** Display the main menu, prompt the user for which db type is being used
 		 * 
 		 */
@@ -83,7 +84,6 @@ public class DatabaseApp {
 				continue;
 			}
 
-			Database db = DbHelper.create(tmpDir + File.separator + "table", mode);
 			switch(inputnumber) {
 			case 1: 
 				DbHelper.populateTable(db, 10000);
@@ -95,7 +95,11 @@ public class DatabaseApp {
 				String startKey = inputKey();
 				System.out.print("End of range?: ");
 				String endKey = inputKey();
-				DbHelper.retrieveRange(db, startKey, endKey);
+				if (startKey.compareTo(endKey) > 0) {
+					System.err.println("End key must be greater than start key!");
+				} else {
+					DbHelper.retrieveRange(db, startKey, endKey);
+				}
 				break;
 			case 5:
 				File dbFile = new File(tmpDir + File.separator + "table");
@@ -114,7 +118,7 @@ public class DatabaseApp {
 	
 	public void cleanup() {
 		File tDirFile = new File(tmpDir);
-		File dbFile = new File(tmpDir + File.separator + "table");
+		File dbFile = new File(tmpDir + File.separator + "table.db");
 		if (dbFile.exists() || tDirFile.exists()){
 			dbFile.delete();
 			tDirFile.delete();
@@ -135,10 +139,10 @@ public class DatabaseApp {
 				key = br.readLine();
 
 				// Return value from input
-				if (key.length() < 64) {
-					System.err.println("Key must be at least 64 characters long");
-					continue;
-				}
+//				if (key.length() < 64) {
+//					System.err.println("Key must be at least 64 characters long");
+//					continue;
+//				}
 				if (key.length() > 127) {
 					System.err.println("Key must be shorter than 128 characters");
 					continue;
