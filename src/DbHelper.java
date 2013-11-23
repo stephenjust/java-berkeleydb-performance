@@ -1,6 +1,9 @@
+
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -98,10 +101,91 @@ public class DbHelper {
 			System.exit(1);
 		}
 	}
+	
+	
+	
+	public void getByKey(Database db, String answerFileName, String skey) {
+		// Search the DB by key.
+		// In the answers file, must have following 3 line format:
+		//		KeyString
+		//		DataString
+		//		EmptyString
+		
+		// Print to the screen:
+		//		Number of records retrieved
+		//		Execution time in Microseconds.
+		
+		// Assume that the class variable for db is called db.
+		String KeyString = skey;
+		String DataString;
+		String EmptyString = "";
+		
+		File file = new File(answerFileName);
+		 
+		
+		
+		
+		try {
+			
+			// if file doesnt exists, then create it
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			//Write to file using bw.write(String);
+			
+			OperationStatus oprStatus; 
+			DatabaseEntry dbKey = new DatabaseEntry(skey.getBytes());
+			DatabaseEntry dbData = new DatabaseEntry();
+			oprStatus = db.get(null, dbKey , new DatabaseEntry(), LockMode.DEFAULT );
+			
+			 if (oprStatus == OperationStatus.KEYEMPTY) {
+					System.out.println("Key was empty");
+					bw.close();
+					return;
+			 } else if (oprStatus == OperationStatus.NOTFOUND) {
+					System.out.println("No data found");
+					bw.close();
+					return;
+			 } else if (oprStatus != OperationStatus.SUCCESS) {
+					System.out.println("General failure to succeed");
+					bw.close();
+					return;
+			 } else {
+				 //Success
+				 //Make a cursor to traverse through data.
+				 //http://docs.oracle.com/cd/E17277_02/html/GettingStartedGuide/Positioning.html
+				 
+				 Cursor cursor = db.openCursor(null,  null);
+				 DatabaseEntry foundData = new DatabaseEntry();
+				 
+				 
+				 
+			 }
+			 
+			 
+			 
+		
+			 bw.close();
+		
+		} catch (DatabaseException e) {
+			System.out.println("Database Exception in getByKey");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("IO Exception. Something is wrong with file creation");
+			e.printStackTrace();
+		} finally {
+			
+		}
+		
+	}
 
 
 	public static List<String> retrieveRange(Database db, String startKey, String endKey) {
 		List<String> list = new ArrayList<String>();
+		FileOutputStream fos = null;
 		
 		long sTime = System.nanoTime();
 		int recordCount = 0;
@@ -114,7 +198,7 @@ public class DbHelper {
 			if (!fh.canWrite()) {
 				throw new IOException("File is not writeable!");
 			}
-			FileOutputStream fos = new FileOutputStream(fh);
+			fos = new FileOutputStream(fh);
 			
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
@@ -154,6 +238,15 @@ public class DbHelper {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		
