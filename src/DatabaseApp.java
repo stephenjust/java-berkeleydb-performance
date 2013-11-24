@@ -92,7 +92,7 @@ public class DatabaseApp {
 					DbHelper.populateTable(db,  100000);
 					DbHelper.populateIndexFile(db);
 					//now we have to make a b-tree database out of the indexfile for reverse lookup
-					this.indexdb = DbHelper.create(tmpDir + File.separator + "table.db", mode);
+					this.indexdb = DbHelper.create(tmpDir + File.separator + "table.db", DatabaseType.BTREE);
 					DbHelper.PopulateDBbyFile(indexdb, "indexfile");
 				}
 				break;
