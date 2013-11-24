@@ -1,8 +1,10 @@
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -46,6 +48,8 @@ public class DbHelper {
 		}
 		return null;
 	}
+	
+	
 
 	/*
 	 *  To populate the given table with nrecs records
@@ -102,6 +106,62 @@ public class DbHelper {
 		}
 	}
 	
+	public static void PopulateDBbyFile(Database db, String filename){
+		BufferedReader br = null;
+		int selector = 0;
+		boolean terminator = false;
+		String skey = "";
+		String sdata = "";
+		try {
+			br = new BufferedReader(new FileReader(filename));	
+			//use br.readline() to get a line.
+			
+			
+			
+			while(terminator != false) {
+				switch (selector %3){
+				case 0: 
+					skey = br.readLine();
+					break;
+				case 1: 
+					sdata = br.readLine();
+					break;
+				case 2:
+					if (br.readLine() == null)
+						terminator = true;
+						break;
+				}
+				
+				if (skey == null || sdata == null){
+					terminator = true;
+					break;
+				}
+				
+				DatabaseEntry readKey = new DatabaseEntry(skey.getBytes());
+				DatabaseEntry readData = new DatabaseEntry(sdata.getBytes());
+				
+				db.put(null, readData, readKey); //Entries reversed on purpose.
+				
+				
+				selector++;
+			}
+		 
+		 
+		} catch(FileNotFoundException e) {
+			e.printStackTrace();
+		} catch(IOException e) {
+			e.printStackTrace();
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				br.close();
+			} catch (IOException e) {
+				System.out.println("Failed to close file");
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	
 	public static void getByKey(Database db, String skey) {
