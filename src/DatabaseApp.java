@@ -107,7 +107,7 @@ public class DatabaseApp {
 					System.out.println("Enter search value");
 					DbHelper.getByValueNoIndex(db, inputKey());
 				} else {
-					System.out.println("TODO: Implement indextree searching.");
+					DbHelper.getByKey(indexdb, inputKey());
 				}
 				
 				break;
