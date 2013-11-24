@@ -52,10 +52,10 @@ public class DatabaseApp {
 		
 
 	}
-	
+	Database indexdb = null;
 	public void run() {
 		Database db = DbHelper.create(tmpDir + File.separator + "table.db", mode);
-
+		
 		/** Display the main menu, prompt the user for which db type is being used
 		 * 
 		 */
@@ -86,7 +86,15 @@ public class DatabaseApp {
 
 			switch(inputnumber) {
 			case 1: 
+				if (this.mode == DatabaseType.BTREE || this.mode == DatabaseType.HASH){
 				DbHelper.populateTable(db, 100000);
+				} else if (this.mode == DatabaseType.UNKNOWN) {
+					DbHelper.populateTable(db,  100000);
+					DbHelper.populateIndexFile(db);
+					//now we have to make a b-tree database out of the indexfile for reverse lookup
+					this.indexdb = DbHelper.create(tmpDir + File.separator + "table.db", mode);
+					DbHelper.PopulateDBbyFile(indexdb, "indexfile");
+				}
 				break;
 			case 2: 
 				System.out.println("Enter Search Key");
