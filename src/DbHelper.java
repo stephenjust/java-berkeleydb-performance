@@ -104,7 +104,7 @@ public class DbHelper {
 	
 	
 	
-	public void getByKey(Database db, String answerFileName, String skey) {
+	public static void getByKey(Database db, String skey) {
 		// Search the DB by key.
 		// In the answers file, must have following 3 line format:
 		//		KeyString
@@ -120,56 +120,49 @@ public class DbHelper {
 		String DataString;
 		String EmptyString = "";
 		
-		File file = new File(answerFileName);
-		 
 		
+		FileOutputStream fos = null;
+		long sTime = System.nanoTime();
 		
 		
 		try {
 			
-			// if file doesnt exists, then create it
-			if (!file.exists()) {
-				file.createNewFile();
+			File fh = new File("answers");
+			if (!fh.exists()) {
+				fh.createNewFile();
 			}
+			if (!fh.canWrite()) {
+				throw new IOException("File is not writeable!");
+			}
+			fos = new FileOutputStream(fh);
 
-			FileWriter fw = new FileWriter(file.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-			//Write to file using bw.write(String);
 			
 			OperationStatus oprStatus; 
 			DatabaseEntry dbKey = new DatabaseEntry(skey.getBytes());
-			DatabaseEntry dbData = new DatabaseEntry();
-			oprStatus = db.get(null, dbKey , new DatabaseEntry(), LockMode.DEFAULT );
+			DatabaseEntry dbData = new DatabaseEntry(); //db data is the one result in place modified returned.
+			oprStatus = db.get(null, dbKey , dbData, LockMode.DEFAULT );
+			
 			
 			 if (oprStatus == OperationStatus.KEYEMPTY) {
 					System.out.println("Key was empty");
-					bw.close();
 					return;
 			 } else if (oprStatus == OperationStatus.NOTFOUND) {
-					System.out.println("No data found");
-					bw.close();
+					System.out.println("No data found");					
 					return;
 			 } else if (oprStatus != OperationStatus.SUCCESS) {
-					System.out.println("General failure to succeed");
-					bw.close();
+					System.out.println("General failure to succeed");				
 					return;
 			 } else {
 				 //Success
-				 //Make a cursor to traverse through data.
-				 //http://docs.oracle.com/cd/E17277_02/html/GettingStartedGuide/Positioning.html
-				 
-				 Cursor cursor = db.openCursor(null,  null);
-				 DatabaseEntry foundData = new DatabaseEntry();
-				 
-				 
-				 
-			 }
-			 
-			 
-			 
-		
-			 bw.close();
-		
+					fos.write(skey.getBytes()); //Search string
+			    	fos.write((byte)'\n');
+			    	fos.write(dbData.getData());
+			    	fos.write((byte)'\n');
+			    	fos.write((byte)'\n');
+			 }	 
+			 System.out.println("Found 1 record(s)");
+			long eTime = System.nanoTime();
+			System.out.println("Query took " + Math.round((eTime - sTime)/1000) + "us");
 		} catch (DatabaseException e) {
 			System.out.println("Database Exception in getByKey");
 			e.printStackTrace();
@@ -177,13 +170,167 @@ public class DbHelper {
 			System.out.println("IO Exception. Something is wrong with file creation");
 			e.printStackTrace();
 		} finally {
-			
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
+		
+	}
+	
+	public static void getByValueNoIndex(Database db, String value){
+		// Search the DB by key.
+		// In the answers file, must have following 3 line format:
+		//		KeyString
+		//		DataString
+		//		EmptyString
+		
+		// Print to the screen:
+		//		Number of records retrieved
+		//		Execution time in Microseconds.
+		
+		//This is like a reverse-hashtable lookup. 
+		//Make a cursor, go through the db.
+		
+		FileOutputStream fos = null;
+		
+		long sTime = System.nanoTime();
+		int recordCount = 0;
+		
+		try {
+			File fh = new File("answers");
+			if (!fh.exists()) {
+				fh.createNewFile();
+			}
+			if (!fh.canWrite()) {
+				throw new IOException("File is not writeable!");
+			}
+			fos = new FileOutputStream(fh);
+			
+			DatabaseEntry key = new DatabaseEntry();
+			DatabaseEntry data = new DatabaseEntry();
+			
+			Cursor c = db.openCursor(null, null);
+			c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
+			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) !=
+		            OperationStatus.SUCCESS) {
+				System.err.println("No results");
+				return;
+			}
+			recordCount = 1;
+		    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+		    	// If the current entry has the value we want, write it to file.
+		    	if (compareByteArrays(key.getData(), value.getBytes("UTF-8")) == 0) {
+		    		fos.write(key.getData());
+			    	fos.write((byte)'\n');
+			    	fos.write(data.getData());
+			    	fos.write((byte)'\n');
+			    	fos.write((byte)'\n');
+		            recordCount++;
+		    	}
+		    		
+		    	
+	        }
+			c.close();
+			System.out.println("Found " + recordCount + " record(s)");
+			long eTime = System.nanoTime();
+			System.out.println("Query took " + Math.round((eTime - sTime)/1000) + "us");
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+	}
+	
+	public static void populateIndexFile(Database db){
+		//Takes the database, reads all records into the "indexfile".
+		long sTime = System.nanoTime();
+		FileOutputStream fos = null;
+		int recordcount = 0;
+		try {
+			File fh = new File("indexfile");
+			if (!fh.exists()) {
+				fh.createNewFile();
+			}
+			if (!fh.canWrite()) {
+				throw new IOException("File is not writeable!");
+			}
+			fos = new FileOutputStream(fh);
+			
+			DatabaseEntry key = new DatabaseEntry();
+			DatabaseEntry data = new DatabaseEntry();
+			
+			Cursor c = db.openCursor(null, null);
+			c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
+			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) !=
+		            OperationStatus.SUCCESS) {
+				System.err.println("No results");
+				return;
+			}
+			
+		    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+		    	// Switch around the entry/key compared to normal to create lookup file.
+		    		fos.write(data.getData());
+			    	fos.write((byte)'\n');
+			    	fos.write(key.getData());
+			    	fos.write((byte)'\n');
+			    	fos.write((byte)'\n');
+		            recordcount++;
+		    	
+		    		
+		    	
+	        }
+			c.close();
+			System.out.println("Wrote " + recordcount + " record(s)");
+			long eTime = System.nanoTime();
+			System.out.println("Query took " + Math.round((eTime - sTime)/1000) + "us");
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
 		
 	}
 
 
-	public static void retrieveRange(Database db, String startKey, String endKey) {
+	public static List<String> retrieveRange(Database db, String startKey, String endKey) {
+		List<String> list = new ArrayList<String>();
 		FileOutputStream fos = null;
 		
 		long sTime = System.nanoTime();
@@ -209,14 +356,9 @@ public class DbHelper {
 			c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
 			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) !=
 		            OperationStatus.SUCCESS) {
-				System.err.println("Error searching!");
-				return;
+				System.err.println("No results");
+				return null;
 			}
-	    	fos.write(key.getData());
-	    	fos.write((byte)'\n');
-	    	fos.write(data.getData());
-	    	fos.write((byte)'\n');
-	    	fos.write((byte)'\n');
 			recordCount = 1;
 		    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 		    	// Stop at end of range
@@ -252,6 +394,9 @@ public class DbHelper {
 				}
 			}
 		}
+		
+		
+		return list;
 	}
 	
 	/**

@@ -88,8 +88,21 @@ public class DatabaseApp {
 			case 1: 
 				DbHelper.populateTable(db, 100000);
 				break;
-			case 2: break;
-			case 3: break;
+			case 2: 
+				System.out.println("Enter Search Key");
+				String searchkey;
+				searchkey = inputKey();
+				DbHelper.getByKey(db, searchkey);
+				break;
+			case 3:
+				if (this.mode == DatabaseType.BTREE || this.mode == DatabaseType.HASH){
+					System.out.println("Enter search value");
+					DbHelper.getByValueNoIndex(db, inputKey());
+				} else {
+					System.out.println("TODO: Implement indextree searching.");
+				}
+				
+				break;
 			case 4:
 				System.out.print("Start of range?: ");
 				String startKey = inputKey();
