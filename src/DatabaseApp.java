@@ -27,7 +27,7 @@ public class DatabaseApp {
 	
 	public void setup(String[] args) throws FileSystemException {
 		if (System.getProperty("os.name").startsWith("Windows")) {
-			tmpDir = "C:\\tmp\\sajust_dir";
+			tmpDir = "C:\\tmp\\smartynk_dir";
 		} else {
 			tmpDir = "/tmp/sajust_dir";
 		}
@@ -37,7 +37,7 @@ public class DatabaseApp {
 		try{
 			if (args[0].equals("btree")) db = new BtreeDB(tmpDir);
 			else if (args[0].equals("hash")) db = new HashTableDb(tmpDir);
-			else if (args[0].equals("indexfile")) this.mode = DatabaseType.UNKNOWN;
+			else if (args[0].equals("indexfile")) db = new Indexfile(tmpDir);
 			else throw new IllegalArgumentException("Invalid mode");
 		} catch(ArrayIndexOutOfBoundsException e) {
 			System.err.println("Please enter in a commandline argument.");
