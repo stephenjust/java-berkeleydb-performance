@@ -98,11 +98,6 @@ public class BtreeDB extends BaseDb implements ISearch {
 		}
 	}
 
-	@Override
-	public void retrieveRange(String startKey, String endKey) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	
 
