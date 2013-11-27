@@ -100,7 +100,7 @@ public class Indexfile extends BaseDb implements ISearch {
 
 
 	@Override
-	public void getByValue(String skey) {
+	public void getByValue(String value) {
 		// Search the DB by key.
 		// Search the DB by key.
 				// In the answers file, must have following 3 line format:
