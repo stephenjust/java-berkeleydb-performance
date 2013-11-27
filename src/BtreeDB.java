@@ -1,12 +1,15 @@
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import com.sleepycat.db.Cursor;
 import com.sleepycat.db.Database;
+import com.sleepycat.db.DatabaseConfig;
 import com.sleepycat.db.DatabaseEntry;
 import com.sleepycat.db.DatabaseException;
+import com.sleepycat.db.DatabaseType;
 import com.sleepycat.db.LockMode;
 import com.sleepycat.db.OperationStatus;
 
@@ -15,7 +18,21 @@ public class BtreeDB extends BaseDb implements ISearch {
 
 	public BtreeDB(String dbPath) {
 		super(dbPath);
-		// TODO Auto-generated constructor stub
+		// database configuration
+		DatabaseConfig dbConfig = new DatabaseConfig();
+
+		dbConfig.setErrorStream(System.err);
+		dbConfig.setType(DatabaseType.BTREE);
+		dbConfig.setAllowCreate(true);
+
+		// database
+		try {
+			db = new Database(dbPath, null, dbConfig);
+		} catch (FileNotFoundException e) {
+			System.err.println("Database file not found");
+		} catch (DatabaseException e) {
+			System.err.println("Failed to open database");
+		}
 	}
 
 	@Override
@@ -96,6 +113,12 @@ public class BtreeDB extends BaseDb implements ISearch {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void cleanUp() {
+		File dbFile = new File(dbPath + File.separator + "table.db");
+		if (dbFile.exists()) dbFile.delete();
 	}
 
 	

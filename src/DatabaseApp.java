@@ -35,9 +35,10 @@ public class DatabaseApp {
 		/** Select the appropriate mode based on commandline arguments
 		 */
 		try{
-		if (args[0].equals("btree")) this.mode = DatabaseType.BTREE;
-		if (args[0].equals("hash")) db = new HashTableDb(tmpDir);
-		if (args[0].equals("indexfile")) this.mode = DatabaseType.UNKNOWN;
+			if (args[0].equals("btree")) db = new BtreeDB(tmpDir);
+			else if (args[0].equals("hash")) db = new HashTableDb(tmpDir);
+			else if (args[0].equals("indexfile")) this.mode = DatabaseType.UNKNOWN;
+			else throw new IllegalArgumentException("Invalid mode");
 		} catch(ArrayIndexOutOfBoundsException e) {
 			System.err.println("Please enter in a commandline argument.");
 			System.err.println("Acceptable options are: btree, hash, indexfile");
