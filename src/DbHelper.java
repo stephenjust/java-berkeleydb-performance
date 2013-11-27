@@ -276,7 +276,7 @@ public class DbHelper {
 			
 			Cursor c = db.openCursor(null, null);
 			c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
-			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) !=
+			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) != //demove this block breaks hashtable
 		            OperationStatus.SUCCESS) {
 				System.err.println("No results");
 				return;
@@ -341,14 +341,14 @@ public class DbHelper {
 			DatabaseEntry data = new DatabaseEntry();
 			
 			Cursor c = db.openCursor(null, null);
-			c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
-			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) !=
+			//c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
+			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) != //dont search by range
 		            OperationStatus.SUCCESS) {
 				System.err.println("No results");
 				return;
 			}
 			
-		    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+		    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) { //getnextdup for speed!!
 		    	// Switch around the entry/key compared to normal to create lookup file.
 		    		fos.write(data.getData());
 			    	fos.write((byte)'\n');
