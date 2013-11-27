@@ -20,7 +20,7 @@ public class BtreeDB extends BaseDb {
 
 		// database
 		try {
-			db = new Database(dbPath + File.pathSeparator + "table.db", null, dbConfig);
+			db = new Database(dbPath + File.separator + "table.db", null, dbConfig);
 		} catch (FileNotFoundException e) {
 			System.err.println("Database file not found");
 		} catch (DatabaseException e) {

@@ -32,8 +32,8 @@ public class Indexfile extends BaseDb {
 
 		// database
 		try {
-			db = new Database(dbPath + File.pathSeparator + "table.db", null, dbConfig);
-			index = new Database(dbPath + File.pathSeparator + "index.db", null, dbConfig);
+			db = new Database(dbPath + File.separator + "table.db", null, dbConfig);
+			index = new Database(dbPath + File.separator + "index.db", null, dbConfig);
 		} catch (FileNotFoundException e) {
 			System.err.println("Database file not found");
 		} catch (DatabaseException e) {
