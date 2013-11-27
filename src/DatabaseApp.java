@@ -102,11 +102,10 @@ public class DatabaseApp {
 				String startKey = inputKey();
 				System.out.print("End of range?: ");
 				String endKey = inputKey();
-				DbHelper.retrieveRange(db, startKey, endKey);
+				db.retrieveRange(startKey, endKey);
 				break;
 			case 5:
-				File dbFile = new File(tmpDir + File.separator + "table.db");
-				if (dbFile.exists()) dbFile.delete();
+				db.cleanUp();
 				System.out.println("Deleted database file");
 				break;
 			case 6:

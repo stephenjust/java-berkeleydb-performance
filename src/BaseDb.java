@@ -10,13 +10,15 @@ import com.sleepycat.db.LockMode;
 import com.sleepycat.db.OperationStatus;
 
 
-public class BaseDb implements ISearch {
+public abstract class BaseDb implements ISearch {
 	protected Database db;
 	protected String dbPath;
 
 	public BaseDb(String dbPath) {
 		this.dbPath = dbPath;
 	}
+	
+	public abstract void cleanUp();
 	
 	/*
 	 *  To populate the given table with nrecs records

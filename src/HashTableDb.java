@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileNotFoundException;
 
 import com.sleepycat.db.Database;
@@ -39,6 +40,12 @@ public class HashTableDb extends BaseDb implements ISearch {
 	public void retrieveRange(String startKey, String endKey) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void cleanUp() {
+		File dbFile = new File(dbPath + File.separator + "table.db");
+		if (dbFile.exists()) dbFile.delete();
 	}
 
 }
