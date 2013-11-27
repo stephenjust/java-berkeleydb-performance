@@ -7,7 +7,7 @@ import com.sleepycat.db.DatabaseException;
 import com.sleepycat.db.DatabaseType;
 
 
-public class HashTableDb extends BaseDb implements ISearch {
+public class HashTableDb extends BaseDb {
 	
 	
 	public HashTableDb(String dbPath) {
@@ -28,12 +28,6 @@ public class HashTableDb extends BaseDb implements ISearch {
 		} catch (DatabaseException e) {
 			System.err.println("Failed to open database");
 		}
-	}
-
-	@Override
-	public void getByValue(String value) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
