@@ -19,10 +19,11 @@ public abstract class BaseDb {
 
 	public BaseDb(String dbPath) {
 		this.dbPath = dbPath;
+		cleanUp();
 	}
-	
+
 	public abstract void cleanUp();
-	
+
 	/*
 	 *  To populate the given table with nrecs records
 	 */
@@ -76,23 +77,23 @@ public abstract class BaseDb {
 			System.exit(1);
 		}
 	}
-	
+
 	public void getByKey(String skey) {
 		// Search the DB by key.
 		// In the answers file, must have following 3 line format:
 		//		KeyString
 		//		DataString
 		//		EmptyString
-		
+
 		// Print to the screen:
 		//		Number of records retrieved
 		//		Execution time in Microseconds.
-		
+
 		FileOutputStream fos = null;
 		long sTime = System.nanoTime();
-		
+
 		try {
-			
+
 			File fh = new File("answers");
 			if (!fh.exists()) {
 				fh.createNewFile();
@@ -102,31 +103,31 @@ public abstract class BaseDb {
 			}
 			fos = new FileOutputStream(fh);
 
-			
+
 			OperationStatus oprStatus; 
 			DatabaseEntry dbKey = new DatabaseEntry(skey.getBytes());
 			DatabaseEntry dbData = new DatabaseEntry(); //db data is the one result in place modified returned.
 			oprStatus = db.get(null, dbKey , dbData, LockMode.DEFAULT );
-			
-			
-			 if (oprStatus == OperationStatus.KEYEMPTY) {
-					System.out.println("Key was empty");
-					return;
-			 } else if (oprStatus == OperationStatus.NOTFOUND) {
-					System.out.println("No data found");					
-					return;
-			 } else if (oprStatus != OperationStatus.SUCCESS) {
-					System.out.println("General failure to succeed");				
-					return;
-			 } else {
-				 //Success
-					fos.write(skey.getBytes()); //Search string
-			    	fos.write((byte)'\n');
-			    	fos.write(dbData.getData());
-			    	fos.write((byte)'\n');
-			    	fos.write((byte)'\n');
-			 }	 
-			 System.out.println("Found 1 record(s)");
+
+
+			if (oprStatus == OperationStatus.KEYEMPTY) {
+				System.out.println("Key was empty");
+				return;
+			} else if (oprStatus == OperationStatus.NOTFOUND) {
+				System.out.println("No data found");					
+				return;
+			} else if (oprStatus != OperationStatus.SUCCESS) {
+				System.out.println("General failure to succeed");				
+				return;
+			} else {
+				//Success
+				fos.write(skey.getBytes()); //Search string
+				fos.write((byte)'\n');
+				fos.write(dbData.getData());
+				fos.write((byte)'\n');
+				fos.write((byte)'\n');
+			}	 
+			System.out.println("Found 1 record(s)");
 			long eTime = System.nanoTime();
 			System.out.println("Query took " + Math.round((eTime - sTime)/1000) + "us");
 		} catch (DatabaseException e) {
@@ -146,44 +147,44 @@ public abstract class BaseDb {
 			}
 		}
 	}
-	
+
 	/**
 	 * Compare byte arrays in lexicographical order, from Apache Hbase
 	 * @param left
 	 * @param right
 	 * @return
 	 */
-    public static int compareByteArrays(byte[] left, byte[] right) {
-        for (int i = 0, j = 0; i < left.length && j < right.length; i++, j++) {
-            int a = (left[i] & 0xff);
-            int b = (right[j] & 0xff);
-            if (a != b) {
-                return a - b;
-            }
-        }
-        return left.length - right.length;
-    }
+	public static int compareByteArrays(byte[] left, byte[] right) {
+		for (int i = 0, j = 0; i < left.length && j < right.length; i++, j++) {
+			int a = (left[i] & 0xff);
+			int b = (right[j] & 0xff);
+			if (a != b) {
+				return a - b;
+			}
+		}
+		return left.length - right.length;
+	}
 
 	public void getByValue(String value) {
-	
+
 		// Search the DB by key.
 		// In the answers file, must have following 3 line format:
 		//		KeyString
 		//		DataString
 		//		EmptyString
-		
+
 		// Print to the screen:
 		//		Number of records retrieved
 		//		Execution time in Microseconds.
-		
+
 		//This is like a reverse-hashtable lookup. 
 		//Make a cursor, go through the db.
-		
+
 		FileOutputStream fos = null;
-		
+
 		long sTime = System.nanoTime();
 		int recordCount = 0;
-		
+
 		try {
 			File fh = new File("answers");
 			if (!fh.exists()) {
@@ -193,31 +194,31 @@ public abstract class BaseDb {
 				throw new IOException("File is not writeable!");
 			}
 			fos = new FileOutputStream(fh);
-			
+
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
-			
+
 			Cursor c = db.openCursor(null, null);
 			c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
 			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) != //demove this block breaks hashtable
-		            OperationStatus.SUCCESS) {
+					OperationStatus.SUCCESS) {
 				System.err.println("No results");
 				return;
 			}
 			recordCount = 1;
-		    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-		    	// If the current entry has the value we want, write it to file.
-		    	if (compareByteArrays(key.getData(), value.getBytes("UTF-8")) == 0) {
-		    		fos.write(key.getData());
-			    	fos.write((byte)'\n');
-			    	fos.write(data.getData());
-			    	fos.write((byte)'\n');
-			    	fos.write((byte)'\n');
-		            recordCount++;
-		    	}
-		    		
-		    	
-	        }
+			while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+				// If the current entry has the value we want, write it to file.
+				if (compareByteArrays(key.getData(), value.getBytes("UTF-8")) == 0) {
+					fos.write(key.getData());
+					fos.write((byte)'\n');
+					fos.write(data.getData());
+					fos.write((byte)'\n');
+					fos.write((byte)'\n');
+					recordCount++;
+				}
+
+
+			}
 			c.close();
 			System.out.println("Found " + recordCount + " record(s)");
 			long eTime = System.nanoTime();
@@ -244,71 +245,99 @@ public abstract class BaseDb {
 	}
 
 	public void retrieveRange(String startKey, String endKey) {
-			FileOutputStream fos = null;
-			
-			long sTime = System.nanoTime();
-			int recordCount = 0;
-			
-			try {
-				File fh = new File("answers");
-				if (!fh.exists()) {
-					fh.createNewFile();
-				}
-				if (!fh.canWrite()) {
-					throw new IOException("File is not writeable!");
-				}
-				fos = new FileOutputStream(fh);
-				
-				DatabaseEntry key = new DatabaseEntry();
-				DatabaseEntry data = new DatabaseEntry();
-				key.setData(startKey.getBytes("UTF-8"));
-				key.setSize(startKey.length());
-				CursorConfig cc = new CursorConfig();
-				
-				Cursor c = db.openCursor(null, cc);
-				c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
-				if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) !=
-			            OperationStatus.SUCCESS) {
-					System.err.println("No results");
-					return;
-				}
-				recordCount = 1;
-			    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-			    	// Stop at end of range
-			    	if (compareByteArrays(key.getData(), endKey.getBytes("UTF-8")) > 0)
-			    		break;
-			    	fos.write(key.getData());
-			    	fos.write((byte)'\n');
-			    	fos.write(data.getData());
-			    	fos.write((byte)'\n');
-			    	fos.write((byte)'\n');
-		            recordCount++;
-		        }
-				c.close();
-				System.out.println("Found " + recordCount + " record(s)");
-				long eTime = System.nanoTime();
-				System.out.println("Query took " + Math.round((eTime - sTime)/1000) + "us");
-			} catch (DatabaseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} finally {
-				if (fos != null) {
-					try {
-						fos.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+		FileOutputStream fos = null;
+
+		long sTime = System.nanoTime();
+		int recordCount = 0;
+
+		try {
+			File fh = new File("answers");
+			if (!fh.exists()) {
+				fh.createNewFile();
+			}
+			if (!fh.canWrite()) {
+				throw new IOException("File is not writeable!");
+			}
+			fos = new FileOutputStream(fh);
+
+			DatabaseEntry key = new DatabaseEntry();
+			DatabaseEntry data = new DatabaseEntry();
+			key.setData(startKey.getBytes("UTF-8"));
+			key.setSize(startKey.length());
+			CursorConfig cc = new CursorConfig();
+
+			Cursor c = db.openCursor(null, cc);
+			c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
+			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) !=
+					OperationStatus.SUCCESS) {
+				System.err.println("No results");
+				return;
+			}
+			recordCount = 1;
+			while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+				// Stop at end of range
+				if (compareByteArrays(key.getData(), endKey.getBytes("UTF-8")) > 0)
+					break;
+				fos.write(key.getData());
+				fos.write((byte)'\n');
+				fos.write(data.getData());
+				fos.write((byte)'\n');
+				fos.write((byte)'\n');
+				recordCount++;
+			}
+			c.close();
+			System.out.println("Found " + recordCount + " record(s)");
+			long eTime = System.nanoTime();
+			System.out.println("Query took " + Math.round((eTime - sTime)/1000) + "us");
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (fos != null) {
+				try {
+					fos.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
+		}
+	}
 	
-		
-		
+	protected void addRecordToAnswers(DatabaseEntry key, DatabaseEntry value) {
+		FileOutputStream fos = null;
+		File fh = new File("answers");
+		try {
+			if (!fh.exists()) {
+				fh.createNewFile();
+			}
+			if (!fh.canWrite()) {
+				throw new IOException("File is not writeable!");
+			}
+			fos = new FileOutputStream(fh);
+			
+			fos.write(key.getData());
+			fos.write((byte)'\n');
+			fos.write(value.getData());
+			fos.write((byte)'\n');
+			fos.write((byte)'\n');
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (fos != null)
+				try {
+					fos.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
 	}
 }
