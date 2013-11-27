@@ -97,16 +97,78 @@ public class Indexfile extends BaseDb implements ISearch {
 		}
 	}
 
-	@Override
-	public void getByKey(String skey) {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 	@Override
-	public void getByValue(String value) {
-		// TODO Auto-generated method stub
-		
+	public void getByValue(String skey) {
+		// Search the DB by key.
+				// In the answers file, must have following 3 line format:
+				//		KeyString
+				//		DataString
+				//		EmptyString
+				
+				// Print to the screen:
+				//		Number of records retrieved
+				//		Execution time in Microseconds.
+				
+				FileOutputStream fos = null;
+				long sTime = System.nanoTime();
+				
+				try {
+					
+					File fh = new File("answers");
+					if (!fh.exists()) {
+						fh.createNewFile();
+					}
+					if (!fh.canWrite()) {
+						throw new IOException("File is not writeable!");
+					}
+					fos = new FileOutputStream(fh);
+
+					
+					OperationStatus oprStatus; 
+					DatabaseEntry dbKey = new DatabaseEntry(skey.getBytes());
+					DatabaseEntry dbData = new DatabaseEntry(); //db data is the one result in place modified returned.
+					oprStatus = index.get(null, dbKey , dbData, LockMode.DEFAULT );
+					
+					
+					 if (oprStatus == OperationStatus.KEYEMPTY) {
+							System.out.println("Key was empty");
+							return;
+					 } else if (oprStatus == OperationStatus.NOTFOUND) {
+							System.out.println("No data found");					
+							return;
+					 } else if (oprStatus != OperationStatus.SUCCESS) {
+							System.out.println("General failure to succeed");				
+							return;
+					 } else {
+						 //Success
+						 fos.write(dbData.getData()); //fos.write(skey.getBytes()); //Search string
+					    	fos.write((byte)'\n');
+					    	fos.write(skey.getBytes()); //fos.write(dbData.getData());
+					    	fos.write((byte)'\n');
+					    	fos.write((byte)'\n');
+					 }	 
+					 System.out.println("Found 1 record(s)");
+					long eTime = System.nanoTime();
+					System.out.println("Query took " + Math.round((eTime - sTime)/1000) + "us");
+				} catch (DatabaseException e) {
+					System.out.println("Database Exception in getByKey");
+					e.printStackTrace();
+				} catch (IOException e) {
+					System.out.println("IO Exception. Something is wrong with file creation");
+					e.printStackTrace();
+				} finally {
+					if (fos != null) {
+						try {
+							fos.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			
 	}
 
 	@Override
@@ -117,7 +179,11 @@ public class Indexfile extends BaseDb implements ISearch {
 
 	@Override
 	public void cleanUp() {
-		// TODO Auto-generated method stub
+		File dbFile = new File(dbPath + File.separator + "table.db");
+		File indexFile = new File(dbPath + File.separator + "index.db");
+		if (dbFile.exists()) dbFile.delete();
+		if (indexFile.exists()) dbFile.delete();
+		
 		
 	}
 	
