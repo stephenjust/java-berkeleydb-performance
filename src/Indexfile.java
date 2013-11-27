@@ -102,6 +102,7 @@ public class Indexfile extends BaseDb implements ISearch {
 	@Override
 	public void getByValue(String skey) {
 		// Search the DB by key.
+		// Search the DB by key.
 				// In the answers file, must have following 3 line format:
 				//		KeyString
 				//		DataString
@@ -111,11 +112,15 @@ public class Indexfile extends BaseDb implements ISearch {
 				//		Number of records retrieved
 				//		Execution time in Microseconds.
 				
+				//This is like a reverse-hashtable lookup. 
+				//Make a cursor, go through the db.
+				
 				FileOutputStream fos = null;
+				
 				long sTime = System.nanoTime();
+				int recordCount = 0;
 				
 				try {
-					
 					File fh = new File("answers");
 					if (!fh.exists()) {
 						fh.createNewFile();
@@ -124,39 +129,43 @@ public class Indexfile extends BaseDb implements ISearch {
 						throw new IOException("File is not writeable!");
 					}
 					fos = new FileOutputStream(fh);
-
 					
-					OperationStatus oprStatus; 
-					DatabaseEntry dbKey = new DatabaseEntry(skey.getBytes());
-					DatabaseEntry dbData = new DatabaseEntry(); //db data is the one result in place modified returned.
-					oprStatus = index.get(null, dbKey , dbData, LockMode.DEFAULT );
+					DatabaseEntry key = new DatabaseEntry();
+					DatabaseEntry data = new DatabaseEntry();
 					
-					
-					 if (oprStatus == OperationStatus.KEYEMPTY) {
-							System.out.println("Key was empty");
-							return;
-					 } else if (oprStatus == OperationStatus.NOTFOUND) {
-							System.out.println("No data found");					
-							return;
-					 } else if (oprStatus != OperationStatus.SUCCESS) {
-							System.out.println("General failure to succeed");				
-							return;
-					 } else {
-						 //Success
-						 fos.write(dbData.getData()); //fos.write(skey.getBytes()); //Search string
+					Cursor c = index.openCursor(null, null);
+					c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
+					if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) != //demove this block breaks hashtable
+				            OperationStatus.SUCCESS) {
+						System.err.println("No results");
+						return;
+					}
+					recordCount = 1;
+				    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+				    	// If the current entry has the value we want, write it to file.
+				    	if (compareByteArrays(key.getData(), value.getBytes("UTF-8")) == 0) {
+				    		fos.write(key.getData());
 					    	fos.write((byte)'\n');
-					    	fos.write(skey.getBytes()); //fos.write(dbData.getData());
+					    	fos.write(data.getData());
 					    	fos.write((byte)'\n');
 					    	fos.write((byte)'\n');
-					 }	 
-					 System.out.println("Found 1 record(s)");
+				            recordCount++;
+				    	}
+				    		
+				    	
+			        }
+					c.close();
+					System.out.println("Found " + recordCount + " record(s)");
 					long eTime = System.nanoTime();
 					System.out.println("Query took " + Math.round((eTime - sTime)/1000) + "us");
 				} catch (DatabaseException e) {
-					System.out.println("Database Exception in getByKey");
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					System.out.println("IO Exception. Something is wrong with file creation");
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} finally {
 					if (fos != null) {
