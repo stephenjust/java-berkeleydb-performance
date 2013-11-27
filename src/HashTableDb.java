@@ -22,7 +22,7 @@ public class HashTableDb extends BaseDb implements ISearch {
 
 		// database
 		try {
-			db = new Database(dbPath, null, dbConfig);
+			db = new Database(dbPath + File.pathSeparator + "table.db", null, dbConfig);
 		} catch (FileNotFoundException e) {
 			System.err.println("Database file not found");
 		} catch (DatabaseException e) {

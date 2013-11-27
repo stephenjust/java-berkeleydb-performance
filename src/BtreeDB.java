@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.DirectoryIteratorException;
 
 import com.sleepycat.db.Cursor;
 import com.sleepycat.db.Database;
@@ -27,7 +28,7 @@ public class BtreeDB extends BaseDb implements ISearch {
 
 		// database
 		try {
-			db = new Database(dbPath, null, dbConfig);
+			db = new Database(dbPath + File.pathSeparator + "table.db", null, dbConfig);
 		} catch (FileNotFoundException e) {
 			System.err.println("Database file not found");
 		} catch (DatabaseException e) {
