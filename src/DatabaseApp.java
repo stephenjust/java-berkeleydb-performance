@@ -37,7 +37,7 @@ public class DatabaseApp {
 		File tDirFile = new File(tmpDir);
 		if (tDirFile.exists()) tDirFile.delete();
 		
-		if (!(new File(tmpDir)).mkdirs()) {
+		if (!tDirFile.exists() && !(new File(tmpDir)).mkdirs()) {
 			throw new FileSystemException("Failed to create temp folder");
 		}
 		
