@@ -10,7 +10,7 @@ import com.sleepycat.db.LockMode;
 import com.sleepycat.db.OperationStatus;
 
 
-public class BaseDb {
+public class BaseDb implements ISearch {
 	protected Database db;
 	protected String dbPath;
 
@@ -158,4 +158,16 @@ public class BaseDb {
         }
         return left.length - right.length;
     }
+
+	@Override
+	public void getByValue(String value) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void retrieveRange(String startKey, String endKey) {
+		// TODO Auto-generated method stub
+		
+	}
 }

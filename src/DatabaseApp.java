@@ -11,6 +11,7 @@ import com.sleepycat.db.DatabaseType;
 public class DatabaseApp {
 	private String tmpDir;
 	DatabaseType mode;
+	BaseDb db;
 	
 	public static void main(String[] args) {
 		DatabaseApp app = new DatabaseApp();
@@ -35,7 +36,7 @@ public class DatabaseApp {
 		 */
 		try{
 		if (args[0].equals("btree")) this.mode = DatabaseType.BTREE;
-		if (args[0].equals("hash")) this.mode = DatabaseType.HASH;
+		if (args[0].equals("hash")) db = new HashTableDb(tmpDir);
 		if (args[0].equals("indexfile")) this.mode = DatabaseType.UNKNOWN;
 		} catch(ArrayIndexOutOfBoundsException e) {
 			System.err.println("Please enter in a commandline argument.");
@@ -53,9 +54,7 @@ public class DatabaseApp {
 
 	}
 	Database indexdb = null;
-	public void run() {
-		Database db = DbHelper.create(tmpDir + File.separator + "table.db", mode);
-		
+	public void run() {		
 		/** Display the main menu, prompt the user for which db type is being used
 		 * 
 		 */
@@ -86,30 +85,17 @@ public class DatabaseApp {
 
 			switch(inputnumber) {
 			case 1: 
-				if (this.mode == DatabaseType.BTREE || this.mode == DatabaseType.HASH){
-				DbHelper.populateTable(db, 100000);
-				} else if (this.mode == DatabaseType.UNKNOWN) {
-					DbHelper.populateTable(db,  100000);
-					DbHelper.populateIndexFile(db);
-					//now we have to make a b-tree database out of the indexfile for reverse lookup
-					this.indexdb = DbHelper.create(tmpDir + File.separator + "table.db", DatabaseType.BTREE);
-					DbHelper.PopulateDBbyFile(indexdb, "indexfile");
-				}
+				db.populateTable(100000);
 				break;
 			case 2: 
 				System.out.println("Enter Search Key");
 				String searchkey;
 				searchkey = inputKey();
-				DbHelper.getByKey(db, searchkey);
+				db.getByKey(searchkey);
 				break;
 			case 3:
-				if (this.mode == DatabaseType.BTREE || this.mode == DatabaseType.HASH){
-					System.out.println("Enter search value");
-					DbHelper.getByValueNoIndex(db, inputKey());
-				} else {
-					DbHelper.getByKey(indexdb, inputKey());
-				}
-				
+				System.out.println("Enter search value");
+				db.getByValue(inputKey());
 				break;
 			case 4:
 				System.out.print("Start of range?: ");
