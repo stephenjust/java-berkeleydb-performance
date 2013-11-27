@@ -1,7 +1,5 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import com.sleepycat.db.Cursor;
@@ -40,21 +38,12 @@ public class HashTableDb extends BaseDb {
 
 	@Override
 	public void retrieveRange(String startKey, String endKey) {
-		FileOutputStream fos = null;
+		OperationStatus os = null;
 		
 		long sTime = System.nanoTime();
 		int recordCount = 0;
 		
-		try {
-			File fh = new File("answers");
-			if (!fh.exists()) {
-				fh.createNewFile();
-			}
-			if (!fh.canWrite()) {
-				throw new IOException("File is not writeable!");
-			}
-			fos = new FileOutputStream(fh);
-			
+		try {			
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
 			key.setData(startKey.getBytes("UTF-8"));
@@ -62,25 +51,29 @@ public class HashTableDb extends BaseDb {
 			CursorConfig cc = new CursorConfig();
 			
 			Cursor c = db.openCursor(null, cc);
-			if (c.getFirst(key, data, LockMode.DEFAULT) == OperationStatus.NOTFOUND) {
-				System.err.println("Table empty!");
+			os = c.getFirst(key, data, LockMode.DEFAULT);
+			if (os == OperationStatus.NOTFOUND) {
+				System.err.println("Database is empty");
+				return;
+			} else if (os != OperationStatus.SUCCESS) {
+				System.err.println("Lookup failed, aborting!");
+				return;
 			}
 			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) !=
 		            OperationStatus.SUCCESS) {
 				System.err.println("No results");
 				return;
 			}
-			recordCount = 1;
+			if (inRange(key, startKey, endKey)) {
+				addRecordToAnswers(key, data);
+				recordCount = 1;
+			}
+			
 		    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-		    	// Stop at end of range
-		    	if (compareByteArrays(key.getData(), endKey.getBytes("UTF-8")) > 0)
-		    		break;
-		    	fos.write(key.getData());
-		    	fos.write((byte)'\n');
-		    	fos.write(data.getData());
-		    	fos.write((byte)'\n');
-		    	fos.write((byte)'\n');
-	            recordCount++;
+		    	if (inRange(key, startKey, endKey)) {
+		    		addRecordToAnswers(key, data);
+		    		recordCount++;
+		    	}
 	        }
 			c.close();
 			System.out.println("Found " + recordCount + " record(s)");
@@ -92,22 +85,26 @@ public class HashTableDb extends BaseDb {
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 		}
 
 	}
 
+	/**
+	 * Check if a database entry is between start and end values
+	 * @param value
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	private boolean inRange(DatabaseEntry value, String start, String end) {
+		try {
+			return (compareByteArrays(value.getData(), start.getBytes("UTF-8")) >= 0 && compareByteArrays(value.getData(), end.getBytes("UTF-8")) <= 0);
+		} catch (UnsupportedEncodingException e) {
+			System.err.println("Encoding error");
+		}
+		return false;
+	}
+	
 	@Override
 	public void cleanUp() {
 		File dbFile = new File(dbPath + File.separator + "table.db");
