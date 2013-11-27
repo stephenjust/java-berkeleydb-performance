@@ -30,12 +30,6 @@ public class HashTableDb extends BaseDb implements ISearch {
 	}
 
 	@Override
-	public void getByKey(String skey) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void getByValue(String value) {
 		// TODO Auto-generated method stub
 
