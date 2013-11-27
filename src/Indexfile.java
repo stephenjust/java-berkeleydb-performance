@@ -17,7 +17,6 @@ import com.sleepycat.db.OperationStatus;
 
 public class Indexfile extends BaseDb {
 
-	public Database db;
 	public Database index;
 	
 	
