@@ -5,12 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystemException;
 
-import com.sleepycat.db.Database;
-import com.sleepycat.db.DatabaseType;
-
 public class DatabaseApp {
 	private String tmpDir;
-	DatabaseType mode;
 	BaseDb db;
 	
 	public static void main(String[] args) {
@@ -25,6 +21,11 @@ public class DatabaseApp {
 		}
 	}
 	
+	/**
+	 * Set up application in current run-mode
+	 * @param args
+	 * @throws FileSystemException
+	 */
 	public void setup(String[] args) throws FileSystemException {
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			tmpDir = "C:\\tmp\\smartynk_dir";
@@ -32,8 +33,15 @@ public class DatabaseApp {
 			tmpDir = "/tmp/sajust_dir";
 		}
 		
-		/** Select the appropriate mode based on commandline arguments
-		 */
+		// Create temporary directory
+		File tDirFile = new File(tmpDir);
+		if (tDirFile.exists()) tDirFile.delete();
+		
+		if (!(new File(tmpDir)).mkdirs()) {
+			throw new FileSystemException("Failed to create temp folder");
+		}
+		
+		// Select the appropriate mode based on commandline arguments
 		try{
 			if (args[0].equals("btree")) db = new BtreeDB(tmpDir);
 			else if (args[0].equals("hash")) db = new HashTableDb(tmpDir);
@@ -43,18 +51,17 @@ public class DatabaseApp {
 			System.err.println("Please enter in a commandline argument.");
 			System.err.println("Acceptable options are: btree, hash, indexfile");
 			System.exit(1);
+		} catch(IllegalArgumentException e) {
+			System.err.println("Please enter in a commandline argument.");
+			System.err.println("Acceptable options are: btree, hash, indexfile");
+			System.exit(1);
+			// In Java 7 we could have caught both of those nicely in one catch clause...
 		}
-		File tDirFile = new File(tmpDir);
-		if (tDirFile.exists()) tDirFile.delete();
-		
-		if (!(new File(tmpDir)).mkdirs()) {
-			throw new FileSystemException("Failed to create temp folder");
-		}
-		
-		
-
 	}
-	Database indexdb = null;
+	
+	/**
+	 * Run application
+	 */
 	public void run() {		
 		/** Display the main menu, prompt the user for which db type is being used
 		 * 
@@ -120,10 +127,11 @@ public class DatabaseApp {
 	}
 	
 	public void cleanup() {
+		if (db != null) {
+			db.cleanUp();
+		}
 		File tDirFile = new File(tmpDir);
-		File dbFile = new File(tmpDir + File.separator + "table.db");
-		if (dbFile.exists() || tDirFile.exists()){
-			dbFile.delete();
+		if (tDirFile.exists()){
 			tDirFile.delete();
 		}
 	}

@@ -62,7 +62,9 @@ public class HashTableDb extends BaseDb {
 			CursorConfig cc = new CursorConfig();
 			
 			Cursor c = db.openCursor(null, cc);
-			c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
+			if (c.getFirst(key, data, LockMode.DEFAULT) == OperationStatus.NOTFOUND) {
+				System.err.println("Table empty!");
+			}
 			if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) !=
 		            OperationStatus.SUCCESS) {
 				System.err.println("No results");
