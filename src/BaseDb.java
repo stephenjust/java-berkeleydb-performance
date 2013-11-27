@@ -89,23 +89,12 @@ public abstract class BaseDb {
 		//		Number of records retrieved
 		//		Execution time in Microseconds.
 
-		FileOutputStream fos = null;
 		long sTime = System.nanoTime();
 
 		try {
-
-			File fh = new File("answers");
-			if (!fh.exists()) {
-				fh.createNewFile();
-			}
-			if (!fh.canWrite()) {
-				throw new IOException("File is not writeable!");
-			}
-			fos = new FileOutputStream(fh, true);
-
-
 			OperationStatus oprStatus; 
 			DatabaseEntry dbKey = new DatabaseEntry(skey.getBytes());
+			dbKey.setSize(skey.length());
 			DatabaseEntry dbData = new DatabaseEntry(); //db data is the one result in place modified returned.
 			oprStatus = db.get(null, dbKey , dbData, LockMode.DEFAULT );
 
@@ -121,11 +110,7 @@ public abstract class BaseDb {
 				return;
 			} else {
 				//Success
-				fos.write(skey.getBytes()); //Search string
-				fos.write((byte)'\n');
-				fos.write(dbData.getData());
-				fos.write((byte)'\n');
-				fos.write((byte)'\n');
+				addRecordToAnswers(dbKey, dbData);
 			}	 
 			System.out.println("Found 1 record(s)");
 			long eTime = System.nanoTime();
@@ -133,18 +118,6 @@ public abstract class BaseDb {
 		} catch (DatabaseException e) {
 			System.out.println("Database Exception in getByKey");
 			e.printStackTrace();
-		} catch (IOException e) {
-			System.out.println("IO Exception. Something is wrong with file creation");
-			e.printStackTrace();
-		} finally {
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
@@ -180,20 +153,10 @@ public abstract class BaseDb {
 		//This is like a reverse-hashtable lookup. 
 		//Make a cursor, go through the db.
 
-		FileOutputStream fos = null;
-
 		long sTime = System.nanoTime();
 		int recordCount = 0;
 
 		try {
-			File fh = new File("answers");
-			if (!fh.exists()) {
-				fh.createNewFile();
-			}
-			if (!fh.canWrite()) {
-				throw new IOException("File is not writeable!");
-			}
-			fos = new FileOutputStream(fh, true);
 
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
@@ -209,11 +172,7 @@ public abstract class BaseDb {
 			while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 				// If the current entry has the value we want, write it to file.
 				if (compareByteArrays(key.getData(), value.getBytes("UTF-8")) == 0) {
-					fos.write(key.getData());
-					fos.write((byte)'\n');
-					fos.write(data.getData());
-					fos.write((byte)'\n');
-					fos.write((byte)'\n');
+					addRecordToAnswers(key, data);
 					recordCount++;
 				}
 
@@ -229,18 +188,6 @@ public abstract class BaseDb {
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			if (fos != null) {
-				try {
-					fos.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 
@@ -273,16 +220,13 @@ public abstract class BaseDb {
 				System.err.println("No results");
 				return;
 			}
+			addRecordToAnswers(key, data);
 			recordCount = 1;
 			while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 				// Stop at end of range
 				if (compareByteArrays(key.getData(), endKey.getBytes("UTF-8")) > 0)
 					break;
-				fos.write(key.getData());
-				fos.write((byte)'\n');
-				fos.write(data.getData());
-				fos.write((byte)'\n');
-				fos.write((byte)'\n');
+				addRecordToAnswers(key, data);
 				recordCount++;
 			}
 			c.close();
@@ -322,9 +266,9 @@ public abstract class BaseDb {
 			}
 			fos = new FileOutputStream(fh, true);
 			
-			fos.write(key.getData());
+			fos.write(new String(key.getData()).substring(0, key.getSize()).getBytes());
 			fos.write((byte)'\n');
-			fos.write(value.getData());
+			fos.write(new String(value.getData()).substring(0, value.getSize()).getBytes());
 			fos.write((byte)'\n');
 			fos.write((byte)'\n');
 		} catch (IOException e) {

@@ -1,7 +1,5 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
@@ -113,20 +111,10 @@ public class Indexfile extends BaseDb {
 				//This is like a reverse-hashtable lookup. 
 				//Make a cursor, go through the db.
 				
-				FileOutputStream fos = null;
-				
 				long sTime = System.nanoTime();
 				int recordCount = 0;
 				
 				try {
-					File fh = new File("answers");
-					if (!fh.exists()) {
-						fh.createNewFile();
-					}
-					if (!fh.canWrite()) {
-						throw new IOException("File is not writeable!");
-					}
-					fos = new FileOutputStream(fh, true);
 					
 					DatabaseEntry key = new DatabaseEntry();
 					DatabaseEntry data = new DatabaseEntry();
@@ -139,14 +127,11 @@ public class Indexfile extends BaseDb {
 						return;
 					}
 					recordCount = 1;
+		    		addRecordToAnswers(key, data);
 				    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 				    	// If the current entry has the value we want, write it to file.
 				    	if (compareByteArrays(key.getData(), value.getBytes("UTF-8")) == 0) {
-				    		fos.write(key.getData());
-					    	fos.write((byte)'\n');
-					    	fos.write(data.getData());
-					    	fos.write((byte)'\n');
-					    	fos.write((byte)'\n');
+				    		addRecordToAnswers(key, data);
 				            recordCount++;
 				    	}
 				    		
@@ -162,18 +147,6 @@ public class Indexfile extends BaseDb {
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} finally {
-					if (fos != null) {
-						try {
-							fos.close();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
 				}
 			
 	}
