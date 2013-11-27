@@ -127,7 +127,7 @@ public class Indexfile extends BaseDb {
 					if (!fh.canWrite()) {
 						throw new IOException("File is not writeable!");
 					}
-					fos = new FileOutputStream(fh);
+					fos = new FileOutputStream(fh, true);
 					
 					DatabaseEntry key = new DatabaseEntry();
 					DatabaseEntry data = new DatabaseEntry();
@@ -177,12 +177,6 @@ public class Indexfile extends BaseDb {
 					}
 				}
 			
-	}
-
-	@Override
-	public void retrieveRange(String startKey, String endKey) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

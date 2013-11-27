@@ -101,7 +101,7 @@ public abstract class BaseDb {
 			if (!fh.canWrite()) {
 				throw new IOException("File is not writeable!");
 			}
-			fos = new FileOutputStream(fh);
+			fos = new FileOutputStream(fh, true);
 
 
 			OperationStatus oprStatus; 
@@ -193,7 +193,7 @@ public abstract class BaseDb {
 			if (!fh.canWrite()) {
 				throw new IOException("File is not writeable!");
 			}
-			fos = new FileOutputStream(fh);
+			fos = new FileOutputStream(fh, true);
 
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
@@ -258,7 +258,7 @@ public abstract class BaseDb {
 			if (!fh.canWrite()) {
 				throw new IOException("File is not writeable!");
 			}
-			fos = new FileOutputStream(fh);
+			fos = new FileOutputStream(fh, true);
 
 			DatabaseEntry key = new DatabaseEntry();
 			DatabaseEntry data = new DatabaseEntry();
@@ -320,7 +320,7 @@ public abstract class BaseDb {
 			if (!fh.canWrite()) {
 				throw new IOException("File is not writeable!");
 			}
-			fos = new FileOutputStream(fh);
+			fos = new FileOutputStream(fh, true);
 			
 			fos.write(key.getData());
 			fos.write((byte)'\n');
