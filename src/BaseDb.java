@@ -165,10 +165,7 @@ public abstract class BaseDb implements ISearch {
     }
 
 	@Override
-	public void getByValue(String value) {
-		// TODO Auto-generated method stub
-		
-	}
+	public abstract void getByValue(String value);
 
 	@Override
 	public void retrieveRange(String startKey, String endKey) {
