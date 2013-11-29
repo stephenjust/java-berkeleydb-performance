@@ -117,23 +117,21 @@ public class Indexfile extends BaseDb {
 				try {
 					
 					DatabaseEntry key = new DatabaseEntry();
+					key.setData(value.getBytes());
+					key.setSize(value.length());
 					DatabaseEntry data = new DatabaseEntry();
 					
 					Cursor c = index.openCursor(null, null);
-					c.getFirst(new DatabaseEntry(), new DatabaseEntry(), LockMode.DEFAULT);
-					if (c.getSearchKeyRange(key, data, LockMode.DEFAULT) != //demove this block breaks hashtable
+					if (c.getSearchKey(key, data, LockMode.DEFAULT) != //demove this block breaks hashtable
 				            OperationStatus.SUCCESS) {
 						System.err.println("No results");
 						return;
 					}
 					recordCount = 1;
 		    		addRecordToAnswers(key, data);
-				    while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
-				    	// If the current entry has the value we want, write it to file.
-				    	if (compareByteArrays(key.getData(), value.getBytes("UTF-8")) == 0) {
-				    		addRecordToAnswers(key, data);
+				    while (c.getNextDup(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
+				    	    addRecordToAnswers(data, key);
 				            recordCount++;
-				    	}
 				    		
 				    	
 			        }
@@ -144,11 +142,7 @@ public class Indexfile extends BaseDb {
 				} catch (DatabaseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
-			
 	}
 
 	@Override
@@ -157,8 +151,6 @@ public class Indexfile extends BaseDb {
 		File indexFile = new File(dbPath + File.separator + "index.db");
 		if (dbFile.exists()) dbFile.delete();
 		if (indexFile.exists()) dbFile.delete();
-		
-		
 	}
 	
 	
