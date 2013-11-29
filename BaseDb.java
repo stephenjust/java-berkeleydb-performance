@@ -156,6 +156,7 @@ public abstract class BaseDb {
 
 		long sTime = System.nanoTime();
 		int recordCount = 0;
+		OperationStatus os;
 
 		try {
 
@@ -163,14 +164,18 @@ public abstract class BaseDb {
 			DatabaseEntry data = new DatabaseEntry();
 
 			Cursor c = db.openCursor(null, null);
-			c.getFirst(key, data, LockMode.DEFAULT);
+			os = c.getFirst(key, data, LockMode.DEFAULT);
+			if (os == OperationStatus.NOTFOUND) {
+			    System.err.println("Database is empty");
+			    return;
+			}
 			if (compareByteArrays(Arrays.copyOf(data.getData(), data.getSize()), value.getBytes()) == 0) {
 			    addRecordToAnswers(key,data);
 			    recordCount++;
 			}
 			while (c.getNext(key, data, LockMode.DEFAULT) == OperationStatus.SUCCESS) {
 				// If the current entry has the value we want, write it to file.
-			    if (compareByteArrays(Arrays.copyOf(data.getData(),data.getSize()), value.getBytes("UTF-8")) == 0) {
+			    if (compareByteArrays(Arrays.copyOf(data.getData(),data.getSize()), value.getBytes()) == 0) {
 					addRecordToAnswers(key, data);
 					recordCount++;
 				}
@@ -182,9 +187,6 @@ public abstract class BaseDb {
 			long eTime = System.nanoTime();
 			System.out.println("Query took " + Math.round((eTime - sTime)/1000) + "us");
 		} catch (DatabaseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
