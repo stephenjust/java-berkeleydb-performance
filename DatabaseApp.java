@@ -3,7 +3,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.FileSystemException;
 
 public class DatabaseApp {
 	private String tmpDir;
@@ -14,7 +13,7 @@ public class DatabaseApp {
 		try {
 			app.setup(args);
 			app.run();
-		} catch (FileSystemException e) {
+		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		} finally {
 			app.cleanup();
@@ -26,7 +25,7 @@ public class DatabaseApp {
 	 * @param args
 	 * @throws FileSystemException
 	 */
-	public void setup(String[] args) throws FileSystemException {
+	public void setup(String[] args) throws Exception {
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			tmpDir = "C:\\tmp\\smartynk_dir";
 		} else {
@@ -38,7 +37,7 @@ public class DatabaseApp {
 		if (tDirFile.exists()) tDirFile.delete();
 		
 		if (!tDirFile.exists() && !(new File(tmpDir)).mkdirs()) {
-			throw new FileSystemException("Failed to create temp folder");
+			throw new Exception("Failed to create temp folder");
 		}
 		
 		// Select the appropriate mode based on commandline arguments
