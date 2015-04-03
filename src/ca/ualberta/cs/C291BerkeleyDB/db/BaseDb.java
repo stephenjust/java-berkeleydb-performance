@@ -1,4 +1,4 @@
-package ca.ualberta.cs.C291BerkeleyDB;
+package ca.ualberta.cs.C291BerkeleyDB.db;
 
 import java.io.File;
 import java.io.FileOutputStream;

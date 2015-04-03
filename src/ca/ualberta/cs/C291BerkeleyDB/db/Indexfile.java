@@ -1,9 +1,8 @@
-package ca.ualberta.cs.C291BerkeleyDB;
+package ca.ualberta.cs.C291BerkeleyDB.db;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 import com.sleepycat.db.Cursor;

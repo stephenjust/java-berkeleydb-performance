@@ -5,6 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import ca.ualberta.cs.C291BerkeleyDB.db.BaseDb;
+import ca.ualberta.cs.C291BerkeleyDB.db.BtreeDB;
+import ca.ualberta.cs.C291BerkeleyDB.db.HashTableDb;
+import ca.ualberta.cs.C291BerkeleyDB.db.Indexfile;
 import ca.ualberta.cs.C291BerkeleyDB.io.ChoicesMenu;
 
 public class DatabaseApp {
