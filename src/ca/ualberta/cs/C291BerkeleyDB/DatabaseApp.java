@@ -5,9 +5,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import ca.ualberta.cs.C291BerkeleyDB.io.ChoicesMenu;
+
 public class DatabaseApp {
 	private String tmpDir;
 	BaseDb db;
+	ChoicesMenu menu;
 	
 	public static void main(String[] args) {
 		DatabaseApp app = new DatabaseApp();
@@ -57,6 +60,19 @@ public class DatabaseApp {
 			System.exit(1);
 			// In Java 7 we could have caught both of those nicely in one catch clause...
 		}
+		
+		setupMenu();
+	}
+	
+	private void setupMenu() {
+		menu = new ChoicesMenu();
+		menu.setTitle("Berkeley DB Performance Demo");
+		menu.addChoice(1, "Create and populate the database");
+		menu.addChoice(2, "Retrieve records with a given key");
+		menu.addChoice(3, "Retrieve records with a given data");
+		menu.addChoice(4, "Retrieve records with a given range of key values");
+		menu.addChoice(5, "Destroy the database");
+		menu.addChoice(6, "Quit");
 	}
 	
 	/**
@@ -67,31 +83,9 @@ public class DatabaseApp {
 		 * 
 		 */
 		while (true) {
-			System.out.println("CMPUT 291 Project 2");
-			System.out.println("-------------------");
-			System.out.println("Select Option");
-			System.out.println("1) Create and populate the database");
-			System.out.println("2) Retrieve records with a given key");
-			System.out.println("3) Retrieve records with a given data");
-			System.out.println("4) Retrieve records with a given range of key values");
-			System.out.println("5) Destroy the database");
-			System.out.println("6) Quit");
+			int choice = menu.prompt();
 			
-			BufferedReader br = null;
-			br = new BufferedReader(new InputStreamReader(System.in));
-			Integer inputnumber = 0;
-			try {
-				String input = br.readLine();
-				inputnumber = Integer.parseInt(input);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NumberFormatException e) {
-				System.out.println("Invalid Entry, please try again");
-				continue;
-			}
-
-			switch(inputnumber) {
+			switch(choice) {
 			case 1: 
 				db.populateTable(100000);
 				break;
