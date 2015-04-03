@@ -1,20 +1,7 @@
-JFLAGS = -g -cp ./:$(CLASSPATH)
-JC = javac
-.SUFFIXES: .java .class
-.java.class:
-	$(JC) $(JFLAGS) $*.java
+default: build
 
-CLASSES = \
-        BaseDb.java \
-        BtreeDB.java \
-        HashTableDb.java \
-        Indexfile.java \
-	DatabaseApp.java
-
-default: classes
-
-classes: $(CLASSES:.java=.class)
-	chmod +x mydbtest
+build:
+	./gradlew build
 
 clean:
-	$(RM) *.class
+	rm -rf ./build

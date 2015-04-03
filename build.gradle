@@ -1,0 +1,24 @@
+apply plugin: 'java'
+
+repositories {
+    flatDir {
+        dirs '/usr/share/java'
+    }
+}
+
+dependencies {
+    compile name: 'db'
+}
+
+sourceCompatibility = 1.6
+
+jar {
+    manifest {
+        attributes("Main-Class": "ca.ualberta.cs.C291BerkeleyDB.DatabaseApp")
+    }
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+}
+
+sourceSets {
+    main.java.srcDir 'src'
+}
