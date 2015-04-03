@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Random;
 
+import ca.ualberta.cs.C291BerkeleyDB.io.AnswerFileStream;
+
 import com.sleepycat.db.Cursor;
 import com.sleepycat.db.CursorConfig;
 import com.sleepycat.db.Database;
@@ -19,10 +21,12 @@ import com.sleepycat.db.OperationStatus;
 public abstract class BaseDb {
 	protected Database db;
 	protected String dbPath;
+	private AnswerFileStream answerStream;
 
-	public BaseDb(String dbPath) {
+	public BaseDb(String dbPath) throws IOException {
 		this.dbPath = dbPath;
 		cleanUp();
+		answerStream = new AnswerFileStream();
 	}
 
 	public abstract void cleanUp();
@@ -258,33 +262,15 @@ public abstract class BaseDb {
 	}
 	
 	protected void addRecordToAnswers(DatabaseEntry key, DatabaseEntry value) {
-		FileOutputStream fos = null;
-		File fh = new File("answers");
 		try {
-			if (!fh.exists()) {
-				fh.createNewFile();
-			}
-			if (!fh.canWrite()) {
-				throw new IOException("File is not writeable!");
-			}
-			fos = new FileOutputStream(fh, true);
-			
-			fos.write(new String(key.getData()).substring(0, key.getSize()).getBytes());
-			fos.write((byte)'\n');
-			fos.write(new String(value.getData()).substring(0, value.getSize()).getBytes());
-			fos.write((byte)'\n');
-			fos.write((byte)'\n');
+			answerStream.write(new String(key.getData()).substring(0, key.getSize()).getBytes());
+			answerStream.write((byte)'\n');
+			answerStream.write(new String(value.getData()).substring(0, value.getSize()).getBytes());
+			answerStream.write((byte)'\n');
+			answerStream.write((byte)'\n');
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.err.println("Failed to write answer to file.");
 			e.printStackTrace();
-		} finally {
-			if (fos != null)
-				try {
-					fos.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 		}
 	}
 }

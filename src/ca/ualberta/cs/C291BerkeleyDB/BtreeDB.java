@@ -2,6 +2,7 @@ package ca.ualberta.cs.C291BerkeleyDB;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import com.sleepycat.db.Database;
 import com.sleepycat.db.DatabaseConfig;
@@ -11,7 +12,7 @@ import com.sleepycat.db.DatabaseType;
 
 public class BtreeDB extends BaseDb {
 
-	public BtreeDB(String dbPath) {
+	public BtreeDB(String dbPath) throws IOException {
 		super(dbPath);
 		// database configuration
 		DatabaseConfig dbConfig = new DatabaseConfig();

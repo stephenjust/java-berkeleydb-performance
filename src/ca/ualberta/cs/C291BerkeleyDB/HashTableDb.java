@@ -2,6 +2,7 @@ package ca.ualberta.cs.C291BerkeleyDB;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import com.sleepycat.db.Cursor;
@@ -18,7 +19,7 @@ import com.sleepycat.db.OperationStatus;
 public class HashTableDb extends BaseDb {
 	
 	
-	public HashTableDb(String dbPath) {
+	public HashTableDb(String dbPath) throws IOException {
 		super(dbPath);
 		
 		// database configuration

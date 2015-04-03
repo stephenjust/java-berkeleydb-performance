@@ -2,6 +2,7 @@ package ca.ualberta.cs.C291BerkeleyDB;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
@@ -20,7 +21,7 @@ public class Indexfile extends BaseDb {
 	public Database index;
 	
 	
-	public Indexfile(String dbPath) {
+	public Indexfile(String dbPath) throws IOException {
 		super(dbPath);
 		// database configuration
 		DatabaseConfig dbConfig = new DatabaseConfig();
