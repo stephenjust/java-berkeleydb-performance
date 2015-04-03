@@ -1,3 +1,2 @@
 #!/bin/bash
-
-java -cp $CLASSPATH -jar build/libs/c291-berkeley-db.jar $1
+java -jar build/libs/c291-berkeley-db.jar $1
