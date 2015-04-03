@@ -4,7 +4,10 @@
 *.jar
 *.war
 *.ear
-.classpath
+
 # Temp files
 *~
 \#*\#
+
+.gradle/
+build/
